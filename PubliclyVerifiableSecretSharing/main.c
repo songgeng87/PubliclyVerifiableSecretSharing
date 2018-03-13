@@ -38,23 +38,25 @@ int main(int argc, const char * argv[]) {
     uint8_t de_dis_secret[uECC_BYTES*2*20];
     
     uint8_t pool_share[uECC_BYTES*2];
-    
+    // 生成20组公钥
     for(i=0;i<20;i++){
         PVVS_make_key(public_key_list+uECC_BYTES*2*i,private_key_list+uECC_BYTES*i);
     }
+    
+    // 按16-20进行分割  t=16
     distribution(t, 20, secret, public_key_list, public_C, dis_secret, real_secret);
     
+    // 输出实际的秘密
     vli_out(real_secret, 64);
     
+    //执行20次解密
     for(i=0;i<20;i++){
         decryption(private_key_list+uECC_BYTES*i, dis_secret+uECC_BYTES*4*i, de_dis_secret+uECC_BYTES*2*i);
     }
-    
+    //利用16个部分秘密还原真实秘密
     pooling(t, public_key_list+uECC_BYTES*2*0, de_dis_secret+uECC_BYTES*2*0, pool_share);
-    
+    //输出还原的秘密
     vli_out(pool_share, 64);
     
-    //testECC();
-    pvvs_test();
     return 0;
 }
